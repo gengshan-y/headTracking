@@ -34,21 +34,4 @@ class TrackingObj {
   double size;  // size of detected object
 };
 
-/** The class for tracker
-***/
-class Tracker {
- public:
-  /* Constructor */
-  Tracker();
- 
-  /* Check how many objects are stored in the tracker */
-  unsigned int getSize();
-
-  /* Insert an object on top */
-  void pushBack();
- 
- private:
-  vector<TrackingObj> trackingTargs;
-};
-
 #endif  // TRACKER_HPP

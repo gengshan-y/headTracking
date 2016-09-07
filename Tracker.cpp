@@ -16,12 +16,3 @@ void TrackingObj::showInfo() {
   pauseFrame(0);
 }
 
-
-
-unsigned int Tracker::getSize() {
-  return trackingTargs.size();
-}
-
-void Tracker::pushBack(TrackingObj obj) {
-  trackingTargs.push_back(obj);
-}
