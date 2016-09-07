@@ -12,6 +12,7 @@ headTracking: cvLib.o Tracker.o
 	${CC} -o headTracking *.o headTracking.cpp ${CXXFLAGS} ${LDFLAGS}
 #  use *.o to link with all .o files, otherwise will ignore all .o files
 
+cvLib.o: cvLib.hpp
 
 Tracker.o: Tracker.hpp
 
