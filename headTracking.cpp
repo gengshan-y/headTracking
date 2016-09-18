@@ -5,19 +5,6 @@
 using namespace std;
 using namespace cv;
 
-/* Define a list variables */
-/* for building detector */ 
-CvSize winSize = cvSize(64, 64);    //window size 
-CvSize blockSize = cvSize(16, 16);  //block size, fixed 
-CvSize blockStride = cvSize(8, 8);  //block stride, a multiple of cellSize 
-CvSize winStride = cvSize(8, 8);    //window stride, a multiple of blockStride 
-CvSize cellSize = cvSize(8, 8);     //cell size, fixed 
-int nbins = 9;  // number of direction bins, fixed 
-const char* detectorPath = "./HogDetector.txt";  // const char* for input file 
- 
-Size imgSize = Size(352, 198);  // resized image size 
-char countStr [50];  // global current frame to store results
-
 int main(int argc, char* argv[]) {
     /* Basic info */
     if (argc != 3) {
@@ -30,9 +17,8 @@ int main(int argc, char* argv[]) {
     /* Initialization */
     Mat frame;  // to store video frames
     vector<Rect> found;  // to store detection results
-    unsigned int count = 0;  // initialize on the fist frame
+    unsigned int count = 80;  // initialize the fist frame to be decoded
     vector<TrackingObj> tracker;  // a tracker to monitor all heads
-    // currID = 0;  // inital ID is 0
 
     /* Build detector */
     HOGDescriptor hog(winSize, blockSize, blockStride, cellSize, nbins);
@@ -45,6 +31,10 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
     unsigned int totalFrame = targetVid.get(CV_CAP_PROP_FRAME_COUNT);
+
+    /* Set current to a pre-defined frame */
+    targetVid.set(CV_CAP_PROP_POS_FRAMES, count);
+
     for(;;) {
         count++;
         targetVid >> frame;
@@ -65,9 +55,7 @@ int main(int argc, char* argv[]) {
 
         /* get cropped images in detRests */
         updateTracker(found, frame, tracker);
-
-        cout << tracker.size() << endl;
-
+ 
         // countRests(detRests);  // count detection results counting
 
         /* save cropped image */

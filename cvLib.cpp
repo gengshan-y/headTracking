@@ -6,7 +6,21 @@
 using namespace std;
 using namespace cv;
 
-/* Define a list of variables */
+/* Define a list variables */
+/* for building detector */
+const CvSize winSize = cvSize(64, 64);    //window size 
+const CvSize blockSize = cvSize(16, 16);  //block size, fixed 
+const CvSize blockStride = cvSize(8, 8);  //block stride, a multiple of cellSize 
+const CvSize winStride = cvSize(8, 8);    //window stride, a multiple of blockStride 
+const CvSize cellSize = cvSize(8, 8);     //cell size, fixed 
+const int nbins = 9;  // number of direction bins, fixed 
+const char* detectorPath = "./HogDetector.txt";  // const char* for input file 
+
+/* for resizing image */
+const Size imgSize = Size(352, 198);  // resized image size 
+
+/* global current frame to store results */
+char countStr [50];
 unsigned int currID = 0;
 
 /* Pause current frame */
@@ -70,32 +84,80 @@ vector<Rect> rmInnerBoxes(vector<Rect> found) {
     return foundFiltered;
 }
 
+TrackingObj measureObj(Mat targImg, Rect detRes) {
+    Mat croppedImg;  // detected head img
+
+    /* get the center */
+    int centerX = detRes.x + detRes.width / 2;
+    int centerY = detRes.y + detRes.height / 2;
+
+    /* Crop image from center with fixed size */
+    Rect tmpBox = Rect(centerX, centerY, 64, 64);
+
+    /* if exceeds boundries */
+    if (tmpBox.x + 64 > targImg.cols || tmpBox.y + 64 > targImg.rows) {
+        targImg(detRes).copyTo(croppedImg);
+        resize(croppedImg, croppedImg, Size(64, 64));  // resize to fixed size 
+    }
+    else {
+        targImg(tmpBox).copyTo(croppedImg);  // to avoid referencing origin
+    }
+    return TrackingObj(currID, croppedImg, detRes);  // measured object
+                                                  // current ID is a faked one
+}
+
+
 void updateTracker(vector<Rect> found, Mat targImg,
                    vector<TrackingObj>& tracker) {
 
-    Mat croppedImg;  // detected head img
+
+    /* Upgrade old object */
+    for (auto it = tracker.begin(); it != tracker.end(); it++) {
+        (*it).incAge();
+        // (*it).showInfo();
+    }
+
+    /* Update/Add objects */
     for (auto it = found.begin(); it != found.end(); it++) {
-        /* get the center */
-        int centerX = (*it).x + (*it).width / 2;
-        int centerY = (*it).y + (*it).height / 2;
 
-        /* Crop image from center with fixed size */
-        Rect tmpBox = Rect(centerX, centerY, 64, 64);
-        /* if exceeds the boundries */
-        if (tmpBox.x + 64 > targImg.cols || tmpBox.y + 64 > targImg.rows) {
-            croppedImg = targImg(*it);
-            resize(croppedImg, croppedImg, Size(64, 64));  // resize to fixed size 
+        /* Build measured object */
+        TrackingObj measuredObj = measureObj(targImg, *it);  // measured object
+        
+        /* update existing tracker */
+        for (auto itt = tracker.begin(); itt != tracker.end(); itt++) {
+            TrackingObj tmpObj = (*itt);
+            /* Flatten the attributes */
+            (*itt).flattenAttr();
+            /* Fold the attributes */
+            (*itt).foldParams();
+            /* Make sure they are identical */
+            if ( (*itt) == tmpObj ) {
+                cout << "identical" << endl;
+            }
+            exit(-1);
+            /* Build a inner class for kalman object in trackign obj */
+            
+            /*  */
+            /* compare with current tracking objects */
         }
-        else {
-            croppedImg = targImg(tmpBox);
+        if (0) {
+            /* set the current tracker */
+            continue;
         }
 
-        /* Push detection results to tracker */
-        tracker.push_back(TrackingObj(currID, croppedImg, *it));
+        /* Else push detection results to tracker */
+        tracker.push_back(measuredObj);
         currID++;  // update ID
+        cout << "ID " << tracker.back().getID() << " added." << endl;
     }
 
     /* Get rid of out-dated objects */
+    for (int it = tracker.size() - 1; it >= 0; it--) {
+        if ( (tracker[it]).getAge() > 10 ) {
+            cout << "ID " << tracker[it].getID() << " to be deleted." << endl;
+            tracker.erase(tracker.begin() + it);
+        }
+    }
 }
 
 /* draw bounding box */
