@@ -97,9 +97,13 @@ void TrackingObj::initKalmanFilter() {
   cout << "transition matrix:\n" << KF.transitionMatrix << endl;
   cout << "measurement matrix:\n" << KF.measurementMatrix << endl;
   cout << "process noise:\n" << KF.processNoiseCov << endl;
-  cout << "measurement noise\n:" << KF.measurementNoiseCov << endl;
+  cout << "measurement noise:\n" << KF.measurementNoiseCov << endl;
   cout << "initial state covariance:\n" << KF.errorCovPost << endl;
   cout << "initial state:\n" << KF.statePost << endl;
+}
+
+void TrackingObj::predKalmanFilter() {
+
 }
 
 void TrackingObj::refreshKalmanFilter() {

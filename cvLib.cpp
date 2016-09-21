@@ -8,12 +8,6 @@ using namespace cv;
 
 /* Define a list variables */
 /* for building detector */
-const CvSize winSize = cvSize(64, 64);    //window size 
-const CvSize blockSize = cvSize(16, 16);  //block size, fixed 
-const CvSize blockStride = cvSize(8, 8);  //block stride, a multiple of cellSize 
-const CvSize winStride = cvSize(8, 8);    //window stride, a multiple of blockStride 
-const CvSize cellSize = cvSize(8, 8);     //cell size, fixed 
-const int nbins = 9;  // number of direction bins, fixed 
 const char* detectorPath = "./HogDetector.txt";  // const char* for input file 
 
 /* for resizing image */
@@ -109,8 +103,6 @@ TrackingObj measureObj(Mat targImg, Rect detRes) {
 
 void updateTracker(vector<Rect> found, Mat targImg,
                    vector<TrackingObj>& tracker) {
-
-
     /* Upgrade old object */
     for (auto it = tracker.begin(); it != tracker.end(); it++) {
         (*it).incAge();
@@ -119,7 +111,6 @@ void updateTracker(vector<Rect> found, Mat targImg,
 
     /* Update/Add objects */
     for (auto it = found.begin(); it != found.end(); it++) {
-
         /* Build measured object */
         TrackingObj measuredObj = measureObj(targImg, *it);  // measured object
         
@@ -136,14 +127,17 @@ void updateTracker(vector<Rect> found, Mat targImg,
             }
             
             /* Build a inner class for kalman object in trackign obj */
-            (*itt).initKalmanFilter();
-            // (*itt).refreshKalmanFilter();
+            // predict KF
+            // cmp state params with measurement
+            // get SVM score for measurement
 
-            /*  */
-            /* compare with current tracking objects */
+            // (*itt).refreshKalmanFilter();
+            // add score to an array
         }
+
+        // if the highest score is higher than a th
         if (0) {
-            /* set the current tracker */
+            /* update the according tracker */
             continue;
         }
 

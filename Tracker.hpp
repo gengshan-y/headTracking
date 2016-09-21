@@ -19,6 +19,9 @@ class TrackingObj {
     /* convert rectangle to position and size */
     pos = make_pair(bBox.x + bBox.width / 2.0, bBox.y + bBox.height / 2.0);
     size = float(bBox.width * bBox.height);
+
+    /* Initialize Kalman Filter and SVM */
+    initKalmanFilter();  // Build inner kalman obj for tracking obj
   }
 
   /* Get the age of object */
@@ -45,11 +48,13 @@ class TrackingObj {
   /* Show current state of Kalman filter */
   void showState();
 
-
   /* Initialize Kalman filter for a tracking object */
   void initKalmanFilter();
 
-  /* Predict and update Kalman filter */
+  /* Predict Kalman filter */
+  void predKalmanFilter();
+
+  /* Update Kalman filter */
   void refreshKalmanFilter();
 
  private:

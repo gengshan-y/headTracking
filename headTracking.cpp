@@ -1,4 +1,5 @@
 #include <iostream>
+#include "global.hpp"
 #include "Tracker.hpp"
 #include "cvLib.hpp"
 
