@@ -127,16 +127,18 @@ void updateTracker(vector<Rect> found, Mat targImg,
         for (auto itt = tracker.begin(); itt != tracker.end(); itt++) {
             TrackingObj tmpObj = (*itt);
             /* Flatten the attributes */
-            (*itt).flattenAttr();
+            (*itt).attr2State();
             /* Fold the attributes */
-            (*itt).foldParams();
+            (*itt).state2Attr();
             /* Make sure they are identical */
             if ( (*itt) == tmpObj ) {
                 cout << "identical" << endl;
             }
-            exit(-1);
-            /* Build a inner class for kalman object in trackign obj */
             
+            /* Build a inner class for kalman object in trackign obj */
+            (*itt).initKalmanFilter();
+            // (*itt).refreshKalmanFilter();
+
             /*  */
             /* compare with current tracking objects */
         }

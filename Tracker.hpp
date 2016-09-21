@@ -12,7 +12,7 @@ class TrackingObj {
  public:
   /* Constructor */
   TrackingObj(unsigned int objID, Mat objAppearance, Rect bBox)
-              : age(1), params(12291, 0) {
+              : age(1), vel(0, 0), state(5, 1, CV_32F), KF(5, 3, 0) {
     ID = objID;
     appearance = objAppearance;
 
@@ -33,23 +33,34 @@ class TrackingObj {
   /* Print object information */
   void showInfo();
 
-  /* Flatten attributes to a vector of parameters */
-  void flattenAttr();
+  /* Convert attributes to a vector of state in Mat format*/
+  void attr2State();
 
-  /* Fold parameters to attributes */
-  void foldParams();
+  /* Convert state to attributes */
+  void state2Attr();
 
   /* Compare attributes with another trackingObj */
   bool operator==(const TrackingObj& other);
+
+  /* Show current state of Kalman filter */
+  void showState();
+
+
+  /* Initialize Kalman filter for a tracking object */
+  void initKalmanFilter();
+
+  /* Predict and update Kalman filter */
+  void refreshKalmanFilter();
 
  private:
   unsigned int ID;
   unsigned int age;  // object's existing time
   Mat appearance;  // image of detected object
   pair<float, float> pos;  // center of detected object
+  pair<float, float> vel;  // velocity of detected object
   float size;  // size of detected object
-  vector<float> params;  // flatterned parameters, 64*64*3+2+1 dim
-  // velocity and accel
+  Mat state;  // state of Kalman Filter
+  KalmanFilter KF;  // Kalman Filter object
 };
 
 #endif  // TRACKER_HPP
