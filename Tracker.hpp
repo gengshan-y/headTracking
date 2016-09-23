@@ -21,6 +21,7 @@ class TrackingObj {
     size = float(bBox.width * bBox.height);
 
     /* Initialize Kalman Filter and SVM */
+    attr2State();  // convert attributes to Kalman Filter state
     initKalmanFilter();  // Build inner kalman obj for tracking obj
   }
 
@@ -48,6 +49,15 @@ class TrackingObj {
   /* Show current state of Kalman filter */
   void showState();
 
+  /* Get current state */
+  Mat getState();
+
+  /* Get measured state */
+  Mat getMeaState();
+
+  /* Get state vector */
+  vector<float> getStateVec();
+
   /* Initialize Kalman filter for a tracking object */
   void initKalmanFilter();
 
@@ -55,15 +65,17 @@ class TrackingObj {
   void predKalmanFilter();
 
   /* Update Kalman filter */
-  void refreshKalmanFilter();
+  void updateKalmanFilter(Mat measuredState);
 
  private:
   unsigned int ID;
   unsigned int age;  // object's existing time
+
   Mat appearance;  // image of detected object
   pair<float, float> pos;  // center of detected object
   pair<float, float> vel;  // velocity of detected object
   float size;  // size of detected object
+
   Mat state;  // state of Kalman Filter
   KalmanFilter KF;  // Kalman Filter object
 };

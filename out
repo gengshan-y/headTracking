@@ -1,0 +1,590 @@
+OpenCV version 2.4.13
+
+frame	0081/1257
+measured state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+ID 0 added.
+
+frame	0082/1257
+age increased.
+
+frame	0083/1257
+age increased.
+measured state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	1570
+1570
+ID 1 added.
+
+frame	0084/1257
+age increased.
+age increased.
+measured state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	1570
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	0
+0
+1570
+ID 2 added.
+
+frame	0085/1257
+age increased.
+age increased.
+age increased.
+measured state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	476
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	1420
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	1420
+476
+1420
+1420
+ID 3 added.
+
+frame	0086/1257
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	1482
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	2454
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	2454
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	1034
+1034
+1482
+2454
+2454
+ID 4 added.
+
+frame	0087/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	1122
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	2118
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	2118
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	698
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	362
+362
+698
+1122
+2118
+2118
+ID 5 added.
+
+frame	0088/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[259;
+  102;
+  0;
+  0;
+  8464]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	2173
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	3203
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	3203
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	1783
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	749
+predicted state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+distance metric:	1085
+749
+1085
+1783
+2173
+3203
+3203
+ID 6 added.
+
+frame	0089/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[249;
+  90;
+  0;
+  0;
+  11236]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	4923
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	5997
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	5997
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	4577
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	3543
+predicted state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+distance metric:	3879
+predicted state:
+[259;
+  102;
+  0;
+  0;
+  8464]
+distance metric:	2794
+2794
+3543
+3879
+4577
+4923
+5997
+5997
+ID 7 added.
+
+frame	0090/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[248.5;
+  89.5;
+  0;
+  0;
+  11449]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	5135
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6211
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6211
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	4791
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	3757
+predicted state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+distance metric:	4093
+predicted state:
+[259;
+  102;
+  0;
+  0;
+  8464]
+distance metric:	3008
+predicted state:
+[249;
+  90;
+  0;
+  0;
+  11236]
+distance metric:	214
+214
+3008
+3757
+4093
+4791
+5135
+6211
+6211
+ID 8 added.
+
+frame	0091/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[248.5;
+  69.5;
+  0;
+  0;
+  11449]
+predicted state:
+[41.5;
+  49.5;
+  0;
+  0;
+  6561]
+distance metric:	5115
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6231
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6231
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	4811
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	3777
+predicted state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+distance metric:	4113
+predicted state:
+[259;
+  102;
+  0;
+  0;
+  8464]
+distance metric:	3028
+predicted state:
+[249;
+  90;
+  0;
+  0;
+  11236]
+distance metric:	234
+predicted state:
+[248.5;
+  89.5;
+  0;
+  0;
+  11449]
+distance metric:	20
+20
+234
+3028
+3777
+4113
+4811
+5115
+6231
+6231
+ID 9 added.
+ID 0 to be deleted.
+
+frame	0092/1257
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+age increased.
+measured state:
+[247;
+  64;
+  0;
+  0;
+  11236]
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6025
+predicted state:
+[274.5;
+  154.5;
+  0;
+  0;
+  5329]
+distance metric:	6025
+predicted state:
+[269;
+  135;
+  0;
+  0;
+  6724]
+distance metric:	4605
+predicted state:
+[266;
+  124;
+  0;
+  0;
+  7744]
+distance metric:	3571
+predicted state:
+[267;
+  111;
+  0;
+  0;
+  7396]
+distance metric:	3907
+predicted state:
+[259;
+  102;
+  0;
+  0;
+  8464]
+distance metric:	2822
+predicted state:
+[249;
+  90;
+  0;
+  0;
+  11236]
+distance metric:	28
+predicted state:
+[248.5;
+  89.5;
+  0;
+  0;
+  11449]
+distance metric:	240
+predicted state:
+[248.5;
+  69.5;
+  0;
+  0;
+  11449]
+distance metric:	220
+28
+220
+240
+2822
+3571
+3907
+4605
+6025
+6025
+ID 10 added.

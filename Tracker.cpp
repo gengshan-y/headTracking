@@ -13,16 +13,18 @@ unsigned int TrackingObj::getID() {
 
 void TrackingObj::incAge() {
   age++;
-  cout << "age increased." << endl; 
+  cout << "ID " << ID << " age increased." << endl; 
 }
 
 void TrackingObj::showInfo() {
+  cout << "Tracker information" << endl;
   cout << "ID\t" << ID << endl;
   cout << "age\t" << age << endl;
   cout << "pos\t(" << pos.first << "," << pos.second << ")" << endl;
   cout << "vel\t(" << vel.first << "," << vel.second << ")" << endl;
   cout << "size\t" << size << endl;
   imshow("object appearance", appearance);
+  showState();
   pauseFrame(0);
 }
 
@@ -68,16 +70,36 @@ bool TrackingObj::operator==(const TrackingObj& other) {
   return true;
 }
 
+Mat TrackingObj::getState() {
+  return state;
+}
+
+Mat TrackingObj::getMeaState() {
+  Mat meaState(3, 1, CV_32F);
+  meaState.at<float>(0, 0) = state.at<float>(0, 0);
+  meaState.at<float>(1, 0) = state.at<float>(1, 0);
+  meaState.at<float>(2, 0) = state.at<float>(4, 0);
+  return meaState;
+}
+
+vector<float> TrackingObj::getStateVec() {
+  vector<float> arr;
+  arr.assign((float*)state.datastart, (float*)state.dataend);
+  return arr;
+}
+
+
 void TrackingObj::showState() {
-  cout << "state: " << endl;
+  cout << "state: \n" << state << endl;
+  /*
   for (int it = 0; it < state.rows; it++) {
     cout << state.at<float>(it, 0) << endl;
   }
+  */
 }
 
 void TrackingObj::initKalmanFilter() {
-  attr2State();
-  showState();
+  // showState();
   KF.transitionMatrix = *( Mat_<float>(5, 5) << 1, 0, 1, 0, 0,  // fps-1 
                                                 0, 1, 0, 1, 0,
                                                 0, 0, 1, 0, 0,
@@ -94,24 +116,30 @@ void TrackingObj::initKalmanFilter() {
   setIdentity(KF.errorCovPost, Scalar::all(1));
   KF.statePost = state;
 
+  /*
   cout << "transition matrix:\n" << KF.transitionMatrix << endl;
   cout << "measurement matrix:\n" << KF.measurementMatrix << endl;
   cout << "process noise:\n" << KF.processNoiseCov << endl;
   cout << "measurement noise:\n" << KF.measurementNoiseCov << endl;
   cout << "initial state covariance:\n" << KF.errorCovPost << endl;
   cout << "initial state:\n" << KF.statePost << endl;
+  */
 }
 
 void TrackingObj::predKalmanFilter() {
-
-}
-
-void TrackingObj::refreshKalmanFilter() {
-  Mat prediction = KF.predict();
-  cout << "predicted state:\n" << prediction << endl;
+  state = KF.predict();
+  /*
+  cout << "predicted state:\n" << state << endl;
   cout << "prior state:\n" << KF.statePre << endl;
   cout << "prior state covariance:\n" << KF.errorCovPre << endl;
+  */
+}
 
+void TrackingObj::updateKalmanFilter(Mat measuredState) {
   /* correct using new measurement */
-  exit(-1);
+  state = KF.correct(measuredState);
+  showState();
+  // Mat processNoise(5, 1, CV_32F);
+  // randn( processNoise, Scalar(0), Scalar::all(sqrt(KF.processNoiseCov.at<float>(0, 0))));
+  // state = KF.transitionMatrix*state + processNoise;
 }

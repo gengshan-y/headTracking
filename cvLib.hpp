@@ -29,6 +29,7 @@ void updateTracker(vector<Rect> found, Mat targImg,
 /* draw bounding box */
 void drawBBox(vector<Rect> found, Mat& targImg);
 
-/*  */
+/* Test sate parsing */
+void testStateParsing(TrackingObj testObj);
 
-#endif /* CV_LIB_HPP */
+#endif  // CV_LIB_HPP

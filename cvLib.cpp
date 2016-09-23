@@ -2,6 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include "Tracker.hpp"
 #include "cvLib.hpp"
+#include "cmpLib.hpp"
 
 using namespace std;
 using namespace cv;
@@ -52,6 +53,16 @@ void buildDetector(HOGDescriptor& hog, const char* detectorPath) {
 
     /* constructing detector*/
     hog.setSVMDetector(x);
+}
+
+/* Test sate parsing */
+void testStateParsing(TrackingObj testObj) {
+  TrackingObj tmpObj = testObj;
+  tmpObj.attr2State();  // Flatten the attributes
+  tmpObj.state2Attr();  // Fold the attributes
+  if ( testObj == tmpObj ) {  // Make sure they are identical
+      cout << "pass state parsing test" << endl;
+  }
 }
 
 /* remove inner boxes */
@@ -106,45 +117,54 @@ void updateTracker(vector<Rect> found, Mat targImg,
     /* Upgrade old object */
     for (auto it = tracker.begin(); it != tracker.end(); it++) {
         (*it).incAge();
-        // (*it).showInfo();
+        (*it).predKalmanFilter();
+        (*it).showInfo();
     }
 
     /* Update/Add objects */
     for (auto it = found.begin(); it != found.end(); it++) {
+
         /* Build measured object */
-        TrackingObj measuredObj = measureObj(targImg, *it);  // measured object
-        
+        TrackingObj meaObj = measureObj(targImg, *it);  // measured object
+        // testStateParsing(meaObj);  // test the parsing interface
+        // get measured state
+        cout << "\nmeasured..." << endl;
+        meaObj.showState();
+        vector<float> meaArray = meaObj.getStateVec();
+
+        vector<float> scoreArr;  // to store the comparison scores 
+
         /* update existing tracker */
         for (auto itt = tracker.begin(); itt != tracker.end(); itt++) {
-            TrackingObj tmpObj = (*itt);
-            /* Flatten the attributes */
-            (*itt).attr2State();
-            /* Fold the attributes */
-            (*itt).state2Attr();
-            /* Make sure they are identical */
-            if ( (*itt) == tmpObj ) {
-                cout << "identical" << endl;
-            }
-            
-            /* Build a inner class for kalman object in trackign obj */
-            // predict KF
-            // cmp state params with measurement
-            // get SVM score for measurement
+            // get tracker predicted state
+            cout << "predicted state:" << endl; 
+            (*itt).showState();
+            vector<float> predArray = (*itt).getStateVec();
 
-            // (*itt).refreshKalmanFilter();
-            // add score to an array
+            // compare with measured state
+            float stateScore = norm(meaArray, predArray, NORM_L1);
+            cout << "distance metric:\t" << stateScore << endl;;
+
+            // get SVM score for measurement
+            scoreArr.push_back(stateScore);  // add score to an array
         }
 
+        unsigned int minIdx = distance(scoreArr.begin(), 
+                              min_element(scoreArr.begin(), scoreArr.end()));
         // if the highest score is higher than a th
-        if (0) {
+        if (scoreArr.size() != 0 && scoreArr[minIdx] < 1000) {
+            cout << "updated..." << endl;
+
             /* update the according tracker */
+            tracker[minIdx].updateKalmanFilter(meaObj.getMeaState());
             continue;
         }
 
         /* Else push detection results to tracker */
-        tracker.push_back(measuredObj);
+        tracker.push_back(meaObj);
         currID++;  // update ID
         cout << "ID " << tracker.back().getID() << " added." << endl;
+        tracker.back().showInfo();
     }
 
     /* Get rid of out-dated objects */
