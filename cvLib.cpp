@@ -114,34 +114,35 @@ TrackingObj measureObj(Mat targImg, Rect detRes) {
 
 void updateTracker(vector<Rect> found, Mat targImg,
                    vector<TrackingObj>& tracker) {
-    /* Upgrade old object */
+    /* Upgrade old tracking objects */
     for (auto it = tracker.begin(); it != tracker.end(); it++) {
         (*it).incAge();
         (*it).predKalmanFilter();
         (*it).showInfo();
     }
 
-    /* Update/Add objects */
-    for (auto it = found.begin(); it != found.end(); it++) {
+    /* Build measured objects */
+    vector<TrackingObj> meaObjs;
+    for (auto it = found.begin(); it != found.end(); it++)
+        meaObjs.push_back(measureObj(targImg, *it));  // measured object
+    // testStateParsing(meaObjs[0]);  // test the parsing interface
 
-        /* Build measured object */
-        TrackingObj meaObj = measureObj(targImg, *it);  // measured object
-        // testStateParsing(meaObj);  // test the parsing interface
-        // get measured state
-        cout << "\nmeasured..." << endl;
-        meaObj.showState();
-        vector<float> meaArray = meaObj.getStateVec();
+    /* Update/Add tracking objects */
+    for (auto it = meaObjs.begin(); it != meaObjs.end(); it++) {
+        cout << "\ncomp measured state with tracker predicted state..." << endl;
+        /* get measured state */
+        cout << "measured..." << endl;
+        (*it).showState();
+        vector<float> meaArray = (*it).getStateVec();
 
         vector<float> scoreArr;  // to store the comparison scores 
-
-        /* update existing tracker */
         for (auto itt = tracker.begin(); itt != tracker.end(); itt++) {
-            // get tracker predicted state
-            cout << "predicted state:" << endl; 
+            /* get tracker predicted state */
+            cout << "predicted..." << endl; 
             (*itt).showState();
             vector<float> predArray = (*itt).getStateVec();
 
-            // compare with measured state
+            // compare states
             float stateScore = norm(meaArray, predArray, NORM_L1);
             cout << "distance metric:\t" << stateScore << endl;;
 
@@ -149,21 +150,20 @@ void updateTracker(vector<Rect> found, Mat targImg,
             scoreArr.push_back(stateScore);  // add score to an array
         }
 
-        unsigned int minIdx = distance(scoreArr.begin(), 
+        unsigned int minIdx = distance(scoreArr.begin(),
                               min_element(scoreArr.begin(), scoreArr.end()));
         // if the highest score is higher than a th
         if (scoreArr.size() != 0 && scoreArr[minIdx] < 1000) {
-            cout << "updated..." << endl;
-
+            cout << "**ID " << tracker[minIdx].getID() << " updated" << endl;
             /* update the according tracker */
-            tracker[minIdx].updateKalmanFilter(meaObj.getMeaState());
+            tracker[minIdx].updateKalmanFilter((*it).getMeaState());
             continue;
         }
 
         /* Else push detection results to tracker */
-        tracker.push_back(meaObj);
+        tracker.push_back(*it);
         currID++;  // update ID
-        cout << "ID " << tracker.back().getID() << " added." << endl;
+        cout << "**ID " << tracker.back().getID() << " added." << endl;
         tracker.back().showInfo();
     }
 

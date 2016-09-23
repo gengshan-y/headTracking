@@ -17,6 +17,7 @@ void TrackingObj::incAge() {
 }
 
 void TrackingObj::showInfo() {
+  cout << "||----------------------------" << endl;
   cout << "Tracker information" << endl;
   cout << "ID\t" << ID << endl;
   cout << "age\t" << age << endl;
@@ -25,6 +26,7 @@ void TrackingObj::showInfo() {
   cout << "size\t" << size << endl;
   imshow("object appearance", appearance);
   showState();
+  cout << "----------------------------||" << endl;
   pauseFrame(0);
 }
 
