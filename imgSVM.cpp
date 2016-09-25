@@ -40,8 +40,8 @@ void imgSVM::SVMTrain() {
   SVM.train(trainDataMat, labelsMat, Mat(), Mat(), params);
 }
 
-void imgSVM::SVMPredict(Mat sampleMat, Mat& res) {
-  return SVM.predict(sampleMat, res);
+float imgSVM::SVMPredict(Mat sampleMat) {
+  return SVM.predict(sampleMat, true);
 }
 
 Mat imgSVM::img2feat(vector<Mat> imgVec) {

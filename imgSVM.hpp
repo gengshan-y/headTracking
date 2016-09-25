@@ -16,7 +16,7 @@ class imgSVM {
   imgSVM() : featSize(1764), trainDataMat(0, 1764, CV_32FC1),
              labelsMat(0, 1, CV_32FC1){
   }
-  
+
   /* Show basic information of SVM classifier */
   void showInfo();
 
@@ -39,20 +39,22 @@ class imgSVM {
   void SVMTrain();
 
   /* Predicing label */
-  void SVMPredict(Mat sampleMat, Mat& res);
+  float SVMPredict(Mat sampleMat);
 
-  /* Fill training data */
+  /* Push training data */
   void fillData(Mat trainPos, Mat trainNeg);
 
   /* Get feature size of the classifier */
   unsigned int getFeatSize();
 
  private:
-  CvSVM SVM;
+  CvSVM SVM;  // use pointer to avoid private CvSVM copy constructor
   CvSVMParams params;
   unsigned int featSize;
   Mat trainDataMat;
   Mat labelsMat;
+  
+  // friend class TrackingObj;
 };
 
 #endif  // IMG_SVM

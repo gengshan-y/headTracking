@@ -2,6 +2,7 @@
 #define TRACKER_HPP
 
 #include <opencv2/opencv.hpp>
+#include "imgSVM.hpp"
 
 using namespace std;
 using namespace cv;
@@ -12,7 +13,8 @@ class TrackingObj {
  public:
   /* Constructor */
   TrackingObj(unsigned int objID, Mat objAppearance, Rect bBox)
-              : age(1), vel(0, 0), state(5, 1, CV_32F), KF(5, 3, 0) {
+              : age(1), vel(0, 0), state(5, 1, CV_32F), KF(5, 3, 0), 
+                negNum(5) {
     ID = objID;
     appearance = objAppearance;
 
@@ -30,6 +32,9 @@ class TrackingObj {
 
   /* Get the ID of the object */
   unsigned int getID();
+
+  /* Get the appearance of the object */
+  Mat getAppearance();
 
   /* Increase the age of an object */
   void incAge();
@@ -67,6 +72,21 @@ class TrackingObj {
   /* Update Kalman filter */
   void updateKalmanFilter(Mat measuredState);
 
+  /* Sample background images as negative samples */
+  vector<Mat> sampleBgImg(Mat bgImg);
+
+  /* Initialize imgSVM object using appearance and background image */
+  void initSVM(Mat bgImg);
+
+  /* Use SVM classifier to generate a score for input appearance */
+  float testSVM(Mat inAppearance);
+
+  /* Add new appearance/negative background and re-train imgSVM classifier */
+  void updateSVM(Mat bgImg, Mat inAppearance);
+
+  /* Free SVM before deleting the tracking object */
+  void rmSVM();
+
  private:
   unsigned int ID;
   unsigned int age;  // object's existing time
@@ -78,6 +98,11 @@ class TrackingObj {
 
   Mat state;  // state of Kalman Filter
   KalmanFilter KF;  // Kalman Filter object
+  
+  imgSVM* trackerSVM;  // classify tracking obj, keep SVM class unchanged
+                       // use pointer to avoid using private copy constructor
+                       // and avoid deleting inner SVM pointers multiple times
+  unsigned int negNum;  // sample how many negative samples in the image
 };
 
 #endif  // TRACKER_HPP

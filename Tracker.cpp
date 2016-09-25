@@ -11,6 +11,10 @@ unsigned int TrackingObj::getID() {
   return ID;
 }
 
+Mat TrackingObj::getAppearance() {
+  return appearance;
+}
+
 void TrackingObj::incAge() {
   age++;
   cout << "ID " << ID << " age increased." << endl; 
@@ -24,7 +28,7 @@ void TrackingObj::showInfo() {
   cout << "pos\t(" << pos.first << "," << pos.second << ")" << endl;
   cout << "vel\t(" << vel.first << "," << vel.second << ")" << endl;
   cout << "size\t" << size << endl;
-  imshow("object appearance", appearance);
+  // imshow("object appearance", appearance);
   showState();
   cout << "----------------------------||" << endl;
   pauseFrame(0);
@@ -144,4 +148,106 @@ void TrackingObj::updateKalmanFilter(Mat measuredState) {
   // Mat processNoise(5, 1, CV_32F);
   // randn( processNoise, Scalar(0), Scalar::all(sqrt(KF.processNoiseCov.at<float>(0, 0))));
   // state = KF.transitionMatrix*state + processNoise;
+}
+
+vector<Mat> TrackingObj::sampleBgImg(Mat bgImg) {
+  vector<Mat> negImgVec;  // a vector of negtive training images
+
+  /* Generate random numbers */
+  RNG rng;
+  vector<unsigned int> rnXVec;
+  vector<unsigned int> rnYVec;
+  for (unsigned int it = 0; it < negNum; it++) {
+    rnXVec.push_back( rng.uniform(0, bgImg.cols - winSize.width) );
+    rnYVec.push_back( rng.uniform(0, bgImg.rows - winSize.height) );
+  }
+
+/*
+  for (unsigned int it = 0; it < negNum; it++) {
+    cout << "posx:\t" << rnXVec[it] << endl;
+    cout << "posy:\t" << rnYVec[it] << endl;
+  }
+*/
+  
+  /* Form negative image vectors */
+  for (unsigned int it = 0; it < negNum; it++) {
+    vector<float> posPos;
+    vector<float> negPos;    
+    posPos.push_back(pos.first);
+    posPos.push_back(pos.second);
+    negPos.push_back(rnXVec[it]);
+    negPos.push_back(rnYVec[it]);
+
+    float dis = norm(posPos, negPos, NORM_L2);
+    // cout << dis << endl;
+    if ( dis < 50 ) {  // remove boxes near head
+        // cout << pos.first << ", " << pos.second << endl;
+        // cout << rnXVec[it] << ", " << rnYVec[it] << endl;
+        continue;
+    }
+    Mat croppedImg;  // a tmp continer of negative images
+    Rect tmpBox(rnXVec[it], rnYVec[it], winSize.width, winSize.height);
+    bgImg(tmpBox).copyTo(croppedImg);
+    negImgVec.push_back(croppedImg);
+  }
+
+  return negImgVec;
+}
+
+void TrackingObj::initSVM(Mat bgImg) {
+  trackerSVM = new imgSVM();
+  trackerSVM->showInfo();
+ 
+  vector<Mat> posImgVec;
+  posImgVec.push_back(appearance);
+
+  vector<Mat> negImgVec = sampleBgImg(bgImg);
+
+/*
+  for (auto it = negImgVec.begin(); it != negImgVec.end(); it++) {
+    imshow("", *it);
+    waitKey(0); 
+  }
+*/
+
+  Mat negFeat = trackerSVM->img2feat(negImgVec);
+  Mat posFeat = trackerSVM->img2feat(posImgVec);
+
+  trackerSVM->fillData(posFeat, negFeat);
+
+  trackerSVM->SVMConfig();
+
+  trackerSVM->SVMTrain();
+}
+
+float TrackingObj::testSVM(Mat inAppearance) {
+  vector<Mat> imgVec;
+  imgVec.push_back(inAppearance);
+  
+  Mat inFeat = trackerSVM->img2feat(imgVec);
+ 
+  float res = trackerSVM->SVMPredict(inFeat);
+  imshow("img1", inAppearance);
+  imshow("img2", appearance);
+  cout << "result:\t" << res << endl;
+  return res;
+}
+
+void TrackingObj::updateSVM(Mat bgImg, Mat inAppearance) { 
+  vector<Mat> newImgPos;
+  newImgPos.push_back(inAppearance);
+  Mat newPosFeat = trackerSVM->img2feat(newImgPos);
+  // Mat newPosLabel(newPosFeat.rows, 1, CV_32FC1, 1.0);
+
+  Mat newNegFeat = trackerSVM->img2feat( sampleBgImg(bgImg) );
+  // Mat newNegLabel(newNegFeat.rows, 1 ,CV_32FC1, -1.0);
+
+  trackerSVM->fillData(newPosFeat, newNegFeat);
+  // trainDataMat.push_back(newPosFeat);
+  // labelsMat.push_back(newPosLabel);
+  trackerSVM->SVMTrain();
+}
+
+void TrackingObj::rmSVM() {
+  delete trackerSVM;
 }

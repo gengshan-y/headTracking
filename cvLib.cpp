@@ -144,10 +144,14 @@ void updateTracker(vector<Rect> found, Mat targImg,
 
             // compare states
             float stateScore = norm(meaArray, predArray, NORM_L1);
+            float score;
             cout << "distance metric:\t" << stateScore << endl;;
 
             // get SVM score for measurement
-            scoreArr.push_back(stateScore);  // add score to an array
+            float SVMScore = (*itt).testSVM( (*it).getAppearance() );
+            cout << "SVM score is " << SVMScore << endl;
+            score = stateScore + SVMScore;
+            scoreArr.push_back(score);  // add score to an array
         }
 
         unsigned int minIdx = distance(scoreArr.begin(),
@@ -156,11 +160,15 @@ void updateTracker(vector<Rect> found, Mat targImg,
         if (scoreArr.size() != 0 && scoreArr[minIdx] < 1000) {
             cout << "**ID " << tracker[minIdx].getID() << " updated" << endl;
             /* update the according tracker */
-            tracker[minIdx].updateKalmanFilter((*it).getMeaState());
+            // update SVM
+            tracker[minIdx].updateSVM( targImg, (*it).getAppearance() );
+            tracker[minIdx].updateKalmanFilter( (*it).getMeaState() );
             continue;
         }
 
         /* Else push detection results to tracker */
+        // initialize SVM for *it
+        (*it).initSVM(targImg);
         tracker.push_back(*it);
         currID++;  // update ID
         cout << "**ID " << tracker.back().getID() << " added." << endl;
@@ -171,6 +179,8 @@ void updateTracker(vector<Rect> found, Mat targImg,
     for (int it = tracker.size() - 1; it >= 0; it--) {
         if ( (tracker[it]).getAge() > 10 ) {
             cout << "ID " << tracker[it].getID() << " to be deleted." << endl;
+            // delete SVM for it
+            (*(tracker.begin() + it)).rmSVM();
             tracker.erase(tracker.begin() + it);
         }
     }
