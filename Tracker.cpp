@@ -15,9 +15,22 @@ Mat TrackingObj::getAppearance() {
   return appearance;
 }
 
+pair<float, float> TrackingObj::getPos() {
+  return pos;
+}
+
+vector<pair<unsigned int, unsigned int>> TrackingObj::getTracklet() {
+  return tracklet;
+}
+
+
 void TrackingObj::incAge() {
   age++;
   // cout << "ID " << ID << " age increased." << endl; 
+}
+
+void TrackingObj::resetAge() {
+  age = 1;
 }
 
 void TrackingObj::showInfo() {
@@ -146,7 +159,7 @@ void TrackingObj::predKalmanFilter() {
 void TrackingObj::updateKalmanFilter(Mat measuredState) {
   /* correct using new measurement */
   state = KF.correct(measuredState);
-  showState();
+  // showState();
   // Mat processNoise(5, 1, CV_32F);
   // randn( processNoise, Scalar(0), Scalar::all(sqrt(KF.processNoiseCov.at<float>(0, 0))));
   // state = KF.transitionMatrix*state + processNoise;
@@ -269,4 +282,31 @@ void TrackingObj::updateSVM(Mat bgImg, Mat inAppearance) {
 
 void TrackingObj::rmSVM() {
   delete trackerSVM;
+}
+
+void TrackingObj::initTracklet() {
+  pair<unsigned int, unsigned int> iniPos= make_pair(pos.first,
+                                                     pos.second);
+  tracklet.push_back(iniPos);
+  
+}
+
+void TrackingObj::updateTracklet(pair<float, float> inPos) {
+  pair<unsigned int, unsigned int> newPos= make_pair(inPos.first,
+                                                   inPos.second);
+  tracklet.push_back(newPos);
+}
+
+bool TrackingObj::getDirection() {
+  int accum = 0;
+  for (unsigned int it = 1; it < tracklet.size(); it++) {
+    accum += tracklet[it].second - tracklet[it - 1].second;
+    // cout << accum << endl;
+  }
+
+  return accum > 0;
+}
+
+void TrackingObj::svAppearance() {
+  imwrite(appearancePath + to_string(ID) + ".jpg", appearance);
 }

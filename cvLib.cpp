@@ -18,6 +18,11 @@ const Size imgSize = Size(352, 198);  // resized image size
 char countStr [50];
 unsigned int currID = 0;
 
+unsigned int upAccum = 0;
+unsigned int downAccum = 0;
+
+string appearancePath = "/data/gengshan/hdTracking/";
+
 /* Pause current frame */
 void pauseFrame(unsigned int milliSeconds) {
     char key = (char) waitKey(milliSeconds);
@@ -92,28 +97,25 @@ vector<Rect> rmInnerBoxes(vector<Rect> found) {
 TrackingObj measureObj(Mat targImg, Rect detRes) {
     Mat croppedImg;  // detected head img
 
-    /* get the center */
-    // int centerX = detRes.x + detRes.width / 2;
-    // int centerY = detRes.y + detRes.height / 2;
-
-    /* Crop image from center with fixed size */
-    // Rect tmpBox = Rect(centerX, centerY, 64, 64);
-    Rect tmpBox = Rect(detRes.x, detRes.y, 64, 64);
-
-    /* if exceeds boundries */
-    if (tmpBox.x + 64 > targImg.cols || tmpBox.y + 64 > targImg.rows) {
-        targImg(detRes).copyTo(croppedImg);
-        resize(croppedImg, croppedImg, Size(64, 64));  // resize to fixed size 
-        cout << "exceeded bounding box" << endl;
-    }
-    else {
-        targImg(tmpBox).copyTo(croppedImg);  // to avoid referencing origin
-    }
+    targImg(detRes).copyTo(croppedImg);
+    resize(croppedImg, croppedImg, Size(64, 64));  // resize to fixed size 
     return TrackingObj(currID, croppedImg, detRes);  // measured object
-
                                                   // current ID is a faked one
 }
 
+
+void drawTracklet(Mat frame, TrackingObj tracker) {
+  vector<pair<unsigned int, unsigned int>> tracklet = tracker.getTracklet();
+
+  for (unsigned int it = 1; it < tracklet.size(); it++) {
+    /* Draw line */
+    line(frame, Point(tracklet[it - 1].first, tracklet[it - 1].second), 
+                Point(tracklet[it].first, tracklet[it].second), 
+                Scalar(110, 220, 0), 5);
+  }
+  
+  imshow("tracklet", frame);
+}
 
 void updateTracker(vector<Rect> found, Mat targImg,
                    vector<TrackingObj>& tracker) {
@@ -153,7 +155,7 @@ void updateTracker(vector<Rect> found, Mat targImg,
             // get SVM score for measurement
             float SVMScore = (*itt).testSVM( (*it).getAppearance() );
             cout << "SVM score: \t" << SVMScore << endl;
-            waitKey(0);
+            // waitKey(0);
             // score = stateScore + SVMScore;
             score = SVMScore;
 
@@ -166,16 +168,25 @@ void updateTracker(vector<Rect> found, Mat targImg,
         //                       min_element(scoreArr.begin(), scoreArr.end()));
         // if the highest score is higher than a th
         // if (scoreArr.size() != 0 && scoreArr[targIdx] < 1000) {
-        if (scoreArr.size() != 0 && scoreArr[targIdx] > 0.5) {
+        if (scoreArr.size() != 0 && scoreArr[targIdx] > 0.6) {
             cout << "**ID " << tracker[targIdx].getID() << " updated" << endl;
             /* update the according tracker */
+
+            // update tracklet
+            tracker[targIdx].updateTracklet( (*it).getPos() );
+            drawTracklet(targImg, tracker[targIdx]);
             // update SVM
             tracker[targIdx].updateSVM( targImg, (*it).getAppearance() );
             tracker[targIdx].updateKalmanFilter( (*it).getMeaState() );
+
+            // reset age
+            tracker[targIdx].resetAge();
             continue;
         }
 
         /* Else push detection results to tracker */
+        // initialize tracklet
+        (*it).initTracklet();
         // initialize SVM for *it
         (*it).initSVM(targImg);
         tracker.push_back(*it);
@@ -187,9 +198,21 @@ void updateTracker(vector<Rect> found, Mat targImg,
     /* Get rid of out-dated objects */
     for (int it = tracker.size() - 1; it >= 0; it--) {
         if ( (tracker[it]).getAge() > 10 ) {
-            cout << "ID " << tracker[it].getID() << " to be deleted." << endl;
+            cout << "$$ID " << tracker[it].getID() << " to be deleted." << endl;
+            // report an up-down direction to global counter
+            if ( (*(tracker.begin() + it)).getDirection() ) {
+                cout << "down" << endl;
+                downAccum++;
+            }
+            else {
+                cout << "up" << endl;
+                upAccum++;
+            }
             // delete SVM for it
             (*(tracker.begin() + it)).rmSVM();
+
+            // save appearance for future reference
+            (*(tracker.begin() + it)).svAppearance();
             tracker.erase(tracker.begin() + it);
         }
     }
@@ -226,3 +249,4 @@ Mat combImgs(Mat img1, Mat img2) {
     img2.copyTo(img3(Rect(sz1.width, 0, sz2.width, sz2.height)));
     return img3;
 }
+

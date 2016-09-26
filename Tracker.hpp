@@ -36,8 +36,17 @@ class TrackingObj {
   /* Get the appearance of the object */
   Mat getAppearance();
 
+  /* Get position of the object */
+  pair<float, float> getPos();
+
+  /* Get tracklet of the tracking object */
+  vector<pair<unsigned int, unsigned int>> getTracklet();
+
   /* Increase the age of an object */
   void incAge();
+
+  /* Reset age as 0 when updating */
+  void resetAge();
 
   /* Print object information */
   void showInfo();
@@ -87,6 +96,18 @@ class TrackingObj {
   /* Free SVM before deleting the tracking object */
   void rmSVM();
 
+  /* Add starting point for tracklet */
+  void initTracklet();
+
+  /* Update tracklet */
+  void updateTracklet(pair<float, float> inPos);
+
+  /* Get direction of the tracklet */
+  bool getDirection();
+
+  /* save this object for future reference */
+  void svAppearance();
+
  private:
   unsigned int ID;
   unsigned int age;  // object's existing time
@@ -103,6 +124,8 @@ class TrackingObj {
                        // use pointer to avoid using private copy constructor
                        // and avoid deleting inner SVM pointers multiple times
   unsigned int negNum;  // sample how many negative samples in the image
+
+  vector<pair<unsigned int, unsigned int>> tracklet;
 };
 
 #endif  // TRACKER_HPP

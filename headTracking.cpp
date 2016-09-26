@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     /* Initialization */
     Mat frame;  // to store video frames
     vector<Rect> found;  // to store detection results
-    unsigned int count = 80;  // initialize the fist frame to be decoded
+    unsigned int count = 160;  // initialize the fist frame to be decoded, 80
     vector<TrackingObj> tracker;  // a tracker to monitor all heads
 
     /* Build detector */
@@ -71,8 +71,8 @@ int main(int argc, char* argv[]) {
 
 
         /* Display image */
-        imshow("demo", dispFrame);
-        pauseFrame(1);
+        // imshow("demo", dispFrame);
+        // pauseFrame(1);
 
         /* get cropped images in detRests */
         updateTracker(found, frame, tracker);
@@ -81,11 +81,14 @@ int main(int argc, char* argv[]) {
 
         /* save cropped image */
         // svCroppedImg(found, frame);
-
-
     
         /* counting */
         // countHead(detRests, frame, memoHead, up, down);
+
+        putText(dispFrame, "up: " + to_string(upAccum) + 
+                        " down: " + to_string(downAccum),
+                cvPoint(20, 40), FONT_HERSHEY_COMPLEX_SMALL,
+                0.8, cvScalar(0, 0, 0));  // up / down counting
 
         /* show detection result */
         if (string(argv[2]) == "y") {
