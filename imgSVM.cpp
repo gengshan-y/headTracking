@@ -24,57 +24,6 @@ void imgSVM::showInfo() {
   cout << "------------------------->>" << endl;
 }
 
-void imgSVM::Mat2samp() {
-  float labels[4] = {1.0, -1.0, -1.0, -1.0};
-  float trainData[4][2] = {{501, 10}, {255, 10}, {501, 255}, {10, 501}};
-
-  Mat(4, 2, CV_32FC1, trainData).copyTo(trainDataMat);  // avoid reference
-  Mat(4, 1, CV_32FC1, labels).copyTo(labelsMat);
-}
-
-void imgSVM::SVMConfig() {
-  params.svm_type    = CvSVM::C_SVC;
-  params.C = 0.1;
-  params.kernel_type = CvSVM::LINEAR;
-  params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 10000, FLT_EPSILON);
-}
-
-void imgSVM::SVMTrain() {
-  SVM.train(trainDataMat, labelsMat, Mat(), Mat(), params);
-}
-
-void imgSVM::SVMPredict(Mat sampleMat, Mat& res) {
-  return SVM.predict(sampleMat, res);
-}
-
-float imgSVM::SVMPredict(Mat sampleMat) {
-  float score = SVM.predict(sampleMat, true);
-  // return 1.0 / (1.0 + exp(-score));
-  return (-score + 1) / 2.0;
-}
-
-Mat imgSVM::img2feat(vector<Mat> imgVec) {
-  Mat featMatWhole(0, featSize, CV_32FC1);
-
-  /* Compute HOG feature */
-  for (auto it = imgVec.begin(); it != imgVec.end(); it++) {
-    Mat img;
-    resize(*it, img, Size(64, 64));
-    HOGDescriptor HOG(winSize, blockSize, blockStride, cellSize, nbins);
-    vector<float> feat;  // temp 1764 dim vector
-    Mat featMat(1, featSize, CV_32FC1);  // temp mat
-
-    HOG.compute(img, feat, winStride);
-    for (unsigned int it = 0; it < feat.size(); it++) {
-      featMat.at<float>(0, it) = feat[it];
-    }
-    
-    featMatWhole.push_back(featMat);
-  }
-  // cout << "generated feature size:\t" << featMatWhole.size() << endl;
-  return featMatWhole;
-}
-
 vector<Mat> imgSVM::path2img(char * imgListPath) {
   vector<Mat> imgVec;      
 
@@ -99,9 +48,51 @@ vector<Mat> imgSVM::path2img(char * imgListPath) {
   return imgVec;
 }
 
+Mat imgSVM::img2feat(vector<Mat> imgVec) {
+  Mat featMatWhole(0, featSize, CV_32FC1);
+
+  /* Compute HOG feature */
+  for (auto it = imgVec.begin(); it != imgVec.end(); it++) {
+    Mat img;
+    resize(*it, img, Size(64, 64));
+    HOGDescriptor HOG(winSize, blockSize, blockStride, cellSize, nbins);
+    vector<float> feat;  // temp 1764 dim vector
+    Mat featMat(1, featSize, CV_32FC1);  // temp mat
+
+    HOG.compute(img, feat, winStride);
+    for (unsigned int it = 0; it < feat.size(); it++) {
+      featMat.at<float>(0, it) = feat[it];
+    }
+    
+    featMatWhole.push_back(featMat);
+  }
+  // cout << "generated feature size:\t" << featMatWhole.size() << endl;
+  return featMatWhole;
+}
+
 Mat imgSVM::path2feat(char* imgListPath) {
   vector<Mat> imgVec = path2img(imgListPath);
   return img2feat(imgVec);
+}
+
+void imgSVM::SVMConfig() {
+  params.svm_type    = CvSVM::C_SVC;
+  params.C = 0.1;
+  params.kernel_type = CvSVM::LINEAR;
+  params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 10000, FLT_EPSILON);
+}
+
+void imgSVM::SVMTrain() {
+  SVM.train(trainDataMat, labelsMat, Mat(), Mat(), params);
+}
+
+void imgSVM::SVMPredict(Mat sampleMat, Mat& res) {
+  return SVM.predict(sampleMat, res);
+}
+
+float imgSVM::SVMPredict(Mat sampleMat) {
+  float score = SVM.predict(sampleMat, true);
+  return (-score + 1) / 2.0;  // weird situatio , should get the opposite num
 }
 
 void imgSVM::fillData(Mat trainPos, Mat trainNeg) {

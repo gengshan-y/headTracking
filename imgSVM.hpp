@@ -29,19 +29,16 @@ class imgSVM {
   /* Read images in the list and compute features */
   Mat path2feat(char* imgListPath);
 
-  /* Parse Mat into training sample */
-  void Mat2samp();
-
   /* Configure parameters */
   void SVMConfig();
 
   /* Training SVM */
   void SVMTrain();
 
-  /* Predicing label */
+  /* Predict single score */
   float SVMPredict(Mat sampleMat);
 
-  /* Predicing label */
+  /* Predict multiple labels */
   void SVMPredict(Mat sampleMat, Mat& res);
 
   /* Push training data */
@@ -51,13 +48,11 @@ class imgSVM {
   unsigned int getFeatSize();
 
  private:
-  CvSVM SVM;  // use pointer to avoid private CvSVM copy constructor
+  CvSVM SVM; 
   CvSVMParams params;
   unsigned int featSize;
   Mat trainDataMat;
   Mat labelsMat;
-  
-  // friend class TrackingObj;
 };
 
 #endif  // IMG_SVM

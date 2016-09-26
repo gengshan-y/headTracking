@@ -43,4 +43,7 @@ void testStateParsing(TrackingObj testObj);
 /* combine two identical-sized images */
 Mat combImgs(Mat img1, Mat img2);
 
+/* Draw tracklet of tracker in current frame and and show */
+void drawTracklet(Mat frame, TrackingObj tracker);
+
 #endif  // CV_LIB_HPP

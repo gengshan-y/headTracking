@@ -23,7 +23,6 @@ unsigned int downAccum = 0;
 
 string appearancePath = "/data/gengshan/hdTracking/";
 
-/* Pause current frame */
 void pauseFrame(unsigned int milliSeconds) {
     char key = (char) waitKey(milliSeconds);
     switch (key) {
@@ -36,7 +35,6 @@ void pauseFrame(unsigned int milliSeconds) {
     }
 }
 
-/* Build detecotr from training result */
 void buildDetector(HOGDescriptor& hog, const char* detectorPath) {
     /* Loading detector */
     /* loading file*/
@@ -58,16 +56,6 @@ void buildDetector(HOGDescriptor& hog, const char* detectorPath) {
 
     /* constructing detector*/
     hog.setSVMDetector(x);
-}
-
-/* Test sate parsing */
-void testStateParsing(TrackingObj testObj) {
-  TrackingObj tmpObj = testObj;
-  tmpObj.attr2State();  // Flatten the attributes
-  tmpObj.state2Attr();  // Fold the attributes
-  if ( testObj == tmpObj ) {  // Make sure they are identical
-      cout << "pass state parsing test" << endl;
-  }
 }
 
 /* remove inner boxes */
@@ -101,20 +89,6 @@ TrackingObj measureObj(Mat targImg, Rect detRes) {
     resize(croppedImg, croppedImg, Size(64, 64));  // resize to fixed size 
     return TrackingObj(currID, croppedImg, detRes);  // measured object
                                                   // current ID is a faked one
-}
-
-
-void drawTracklet(Mat frame, TrackingObj tracker) {
-  vector<pair<unsigned int, unsigned int>> tracklet = tracker.getTracklet();
-
-  for (unsigned int it = 1; it < tracklet.size(); it++) {
-    /* Draw line */
-    line(frame, Point(tracklet[it - 1].first, tracklet[it - 1].second), 
-                Point(tracklet[it].first, tracklet[it].second), 
-                Scalar(110, 220, 0), 5);
-  }
-  
-  imshow("tracklet", frame);
 }
 
 void updateTracker(vector<Rect> found, Mat targImg,
@@ -218,7 +192,6 @@ void updateTracker(vector<Rect> found, Mat targImg,
     }
 }
 
-/* draw bounding box */
 void drawBBox(vector<Rect> found, Mat& targImg) {
     for (auto it = found.begin(); it != found.end(); it++){
         Rect r = *it;
@@ -239,7 +212,6 @@ void extBBox(vector<Rect>& found) {
     }
 }
 
-/* combine two identical-sized images */
 Mat combImgs(Mat img1, Mat img2) {
     Size sz1 = img1.size();
     Size sz2 = img2.size();
@@ -249,4 +221,28 @@ Mat combImgs(Mat img1, Mat img2) {
     img2.copyTo(img3(Rect(sz1.width, 0, sz2.width, sz2.height)));
     return img3;
 }
+
+void drawTracklet(Mat frame, TrackingObj tracker) {
+  vector<pair<unsigned int, unsigned int>> tracklet = tracker.getTracklet();
+
+  for (unsigned int it = 1; it < tracklet.size(); it++) {
+    /* Draw line */
+    line(frame, Point(tracklet[it - 1].first, tracklet[it - 1].second), 
+                Point(tracklet[it].first, tracklet[it].second), 
+                Scalar(110, 220, 0), 5);
+  }
+  
+  imshow("tracklet", frame);
+}
+
+
+void testStateParsing(TrackingObj testObj) {
+  TrackingObj tmpObj = testObj;
+  tmpObj.attr2State();  // Flatten the attributes
+  tmpObj.state2Attr();  // Fold the attributes
+  if ( testObj == tmpObj ) {  // Make sure they are identical
+      cout << "pass state parsing test" << endl;
+  }
+}
+
 

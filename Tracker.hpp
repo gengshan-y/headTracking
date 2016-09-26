@@ -39,6 +39,15 @@ class TrackingObj {
   /* Get position of the object */
   pair<float, float> getPos();
 
+  /* Get current state */
+  Mat getState();
+
+  /* Get measured state */
+  Mat getMeaState();
+
+  /* Get state vector */
+  vector<float> getStateVec();
+
   /* Get tracklet of the tracking object */
   vector<pair<unsigned int, unsigned int>> getTracklet();
 
@@ -62,15 +71,6 @@ class TrackingObj {
 
   /* Show current state of Kalman filter */
   void showState();
-
-  /* Get current state */
-  Mat getState();
-
-  /* Get measured state */
-  Mat getMeaState();
-
-  /* Get state vector */
-  vector<float> getStateVec();
 
   /* Initialize Kalman filter for a tracking object */
   void initKalmanFilter();
@@ -125,7 +125,8 @@ class TrackingObj {
                        // and avoid deleting inner SVM pointers multiple times
   unsigned int negNum;  // sample how many negative samples in the image
 
-  vector<pair<unsigned int, unsigned int>> tracklet;
+  vector<pair<unsigned int, unsigned int>> tracklet;  // a list of tracking points
 };
+
 
 #endif  // TRACKER_HPP

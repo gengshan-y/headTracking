@@ -1,8 +1,6 @@
 #include "Tracker.hpp"
 #include "cvLib.hpp"
 
-// using namespace std;
-
 unsigned int TrackingObj::getAge() {
   return age;
 }   
@@ -19,10 +17,27 @@ pair<float, float> TrackingObj::getPos() {
   return pos;
 }
 
+Mat TrackingObj::getState() {
+  return state;
+}
+
+Mat TrackingObj::getMeaState() {
+  Mat meaState(3, 1, CV_32F);
+  meaState.at<float>(0, 0) = state.at<float>(0, 0);
+  meaState.at<float>(1, 0) = state.at<float>(1, 0);
+  meaState.at<float>(2, 0) = state.at<float>(4, 0);
+  return meaState;
+}
+
+vector<float> TrackingObj::getStateVec() {
+  vector<float> arr;
+  arr.assign((float*)state.datastart, (float*)state.dataend);
+  return arr;
+}
+
 vector<pair<unsigned int, unsigned int>> TrackingObj::getTracklet() {
   return tracklet;
 }
-
 
 void TrackingObj::incAge() {
   age++;
@@ -90,25 +105,6 @@ bool TrackingObj::operator==(const TrackingObj& other) {
 
   return true;
 }
-
-Mat TrackingObj::getState() {
-  return state;
-}
-
-Mat TrackingObj::getMeaState() {
-  Mat meaState(3, 1, CV_32F);
-  meaState.at<float>(0, 0) = state.at<float>(0, 0);
-  meaState.at<float>(1, 0) = state.at<float>(1, 0);
-  meaState.at<float>(2, 0) = state.at<float>(4, 0);
-  return meaState;
-}
-
-vector<float> TrackingObj::getStateVec() {
-  vector<float> arr;
-  arr.assign((float*)state.datastart, (float*)state.dataend);
-  return arr;
-}
-
 
 void TrackingObj::showState() {
   cout << "state: \n" << state << endl;
@@ -194,10 +190,7 @@ vector<Mat> TrackingObj::sampleBgImg(Mat bgImg) {
     negPos.push_back(rnYVec[it]);
 
     float dis = norm(posPos, negPos, NORM_L2);
-    // cout << dis << endl;
     if ( dis < 50 ) {  // remove boxes near head
-        // cout << pos.first << ", " << pos.second << endl;
-        // cout << rnXVec[it] << ", " << rnYVec[it] << endl;
         continue;
     }
     Mat croppedImg;  // a tmp continer of negative images
@@ -232,21 +225,6 @@ void TrackingObj::initSVM(Mat bgImg) {
   trackerSVM->SVMConfig();
 
   trackerSVM->SVMTrain();
-
-  /*
-  cout << "pos Prob:\t" << trackerSVM->SVMPredict(posFeat) << endl;
-  for (int it = 0; it < negFeat.rows; it++) {
-    cout << "neg Prob:\t" << trackerSVM->SVMPredict( negFeat.row(it) ) << endl;
-  }
-  */
-  
-  /*
-  Mat res;
-  trackerSVM->SVMPredict(posFeat, res);
-  cout << res << endl;
-  trackerSVM->SVMPredict(negFeat, res);
-  cout << res << endl;
-  */
 }
 
 float TrackingObj::testSVM(Mat inAppearance) {
@@ -258,25 +236,25 @@ float TrackingObj::testSVM(Mat inAppearance) {
   float res = trackerSVM->SVMPredict(inFeat);
   Mat cmbedImg = combImgs(inAppearance, appearance);
   imshow("", cmbedImg);
-  // imshow("img1", inAppearance);
-  // imshow("img2", appearance);
-  // pauseFrame(0);
- 
+  
+  /*
+  imshow("img1", inAppearance);
+  imshow("img2", appearance);
+  pauseFrame(0);
+  */
+
   return res;
 }
 
 void TrackingObj::updateSVM(Mat bgImg, Mat inAppearance) { 
   vector<Mat> newImgPos;
   newImgPos.push_back(inAppearance);
-  Mat newPosFeat = trackerSVM->img2feat(newImgPos);
-  // Mat newPosLabel(newPosFeat.rows, 1, CV_32FC1, 1.0);
 
+  /* get features from new images */
+  Mat newPosFeat = trackerSVM->img2feat(newImgPos);
   Mat newNegFeat = trackerSVM->img2feat( sampleBgImg(bgImg) );
-  // Mat newNegLabel(newNegFeat.rows, 1 ,CV_32FC1, -1.0);
 
   trackerSVM->fillData(newPosFeat, newNegFeat);
-  // trainDataMat.push_back(newPosFeat);
-  // labelsMat.push_back(newPosLabel);
   trackerSVM->SVMTrain();
 }
 
@@ -288,7 +266,6 @@ void TrackingObj::initTracklet() {
   pair<unsigned int, unsigned int> iniPos= make_pair(pos.first,
                                                      pos.second);
   tracklet.push_back(iniPos);
-  
 }
 
 void TrackingObj::updateTracklet(pair<float, float> inPos) {
@@ -301,7 +278,6 @@ bool TrackingObj::getDirection() {
   int accum = 0;
   for (unsigned int it = 1; it < tracklet.size(); it++) {
     accum += tracklet[it].second - tracklet[it - 1].second;
-    // cout << accum << endl;
   }
 
   return accum > 0;

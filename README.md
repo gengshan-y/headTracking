@@ -13,4 +13,10 @@ Using Kalman filter and SVM classifier to generate tracking scores.
 ## Usage
 - `./headTracking /data/gengshan/vid/testMultiTarget.avi y`
 
+## todo
+- use distance to leverage svm score...
+- divide updateTracker function
+- optimzie display setting... put tracking result in detection result later. 
+
 ## Log
+- params: negNum in TrackingObj class.
