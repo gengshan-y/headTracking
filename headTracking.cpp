@@ -45,7 +45,9 @@ int main(int argc, char* argv[]) {
 
         /* get frame progress */
         sprintf(countStr, "%04d", count);  // padding with zeros
-        cout << "\nframe\t" << countStr << "/" << totalFrame << endl;
+        cout << "------------------------------------------" 
+             << "------------------------------------------" << endl;
+        cout << "frame\t" << countStr << "/" << totalFrame << endl;
        
         /* process a frame and get detection result */
         resize(frame, frame, imgSize);  // set to same-scale as train
@@ -53,6 +55,24 @@ int main(int argc, char* argv[]) {
 
         /* remove inner boxes */
         found = rmInnerBoxes(found);
+
+        /* extend bounding box */
+        extBBox(found);
+
+        Mat dispFrame;
+        frame.copyTo(dispFrame);
+        /* draw bounding box */
+        drawBBox(found, dispFrame);
+        /* put information on image */
+        putText(dispFrame, 
+                "frame " + string(countStr) + "/" + to_string(totalFrame), 
+                cvPoint(20, 20), FONT_HERSHEY_COMPLEX_SMALL,
+                0.8, cvScalar(0, 0, 0));  // frame progress
+
+
+        /* Display image */
+        imshow("demo", dispFrame);
+        pauseFrame(1);
 
         /* get cropped images in detRests */
         updateTracker(found, frame, tracker);
@@ -62,21 +82,14 @@ int main(int argc, char* argv[]) {
         /* save cropped image */
         // svCroppedImg(found, frame);
 
-        /* draw bounding box */
-        drawBBox(found, frame);
+
     
         /* counting */
         // countHead(detRests, frame, memoHead, up, down);
 
-        /* put information on image */
-        putText(frame, 
-                "frame " + string(countStr) + "/" + to_string(totalFrame), 
-                cvPoint(20, 20), FONT_HERSHEY_COMPLEX_SMALL,
-                0.8, cvScalar(0, 0, 0));  // frame progress
-
         /* show detection result */
         if (string(argv[2]) == "y") {
-            imshow("demo", frame);
+            imshow("demo", dispFrame);
             pauseFrame(1);
         }
     }

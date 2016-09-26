@@ -29,7 +29,13 @@ void updateTracker(vector<Rect> found, Mat targImg,
 /* draw bounding box */
 void drawBBox(vector<Rect> found, Mat& targImg);
 
+/* Extend detection bounding box */
+void extBBox(vector<Rect>& found);
+
 /* Test sate parsing */
 void testStateParsing(TrackingObj testObj);
+
+/* combine two identical-sized images */
+Mat combImgs(Mat img1, Mat img2);
 
 #endif  // CV_LIB_HPP

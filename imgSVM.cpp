@@ -4,6 +4,8 @@ using namespace std;
 using namespace cv;
 
 void imgSVM::showInfo() {
+  cout << "<<------------------------" << endl;
+  cout << "imgSVM info" << endl;
   cout << "feature size:\t" << trainDataMat.cols << endl;
   cout << "sample count:\t" << trainDataMat.rows << endl;
   cout << "SVM params:" << endl;
@@ -19,6 +21,7 @@ void imgSVM::showInfo() {
   cout << "term_crit_type:\t" << params.term_crit.type << endl;
   cout << "term_crit_max_iter:\t" << params.term_crit.max_iter << endl;
   cout << "term_crit_epsilon:\t" << params.term_crit.epsilon << endl;
+  cout << "------------------------->>" << endl;
 }
 
 void imgSVM::Mat2samp() {
@@ -31,17 +34,23 @@ void imgSVM::Mat2samp() {
 
 void imgSVM::SVMConfig() {
   params.svm_type    = CvSVM::C_SVC;
+  params.C = 0.1;
   params.kernel_type = CvSVM::LINEAR;
-  params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-  showInfo(); 
+  params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 10000, FLT_EPSILON);
 }
 
 void imgSVM::SVMTrain() {
   SVM.train(trainDataMat, labelsMat, Mat(), Mat(), params);
 }
 
+void imgSVM::SVMPredict(Mat sampleMat, Mat& res) {
+  return SVM.predict(sampleMat, res);
+}
+
 float imgSVM::SVMPredict(Mat sampleMat) {
-  return SVM.predict(sampleMat, true);
+  float score = SVM.predict(sampleMat, true);
+  // return 1.0 / (1.0 + exp(-score));
+  return (-score + 1) / 2.0;
 }
 
 Mat imgSVM::img2feat(vector<Mat> imgVec) {
@@ -62,7 +71,7 @@ Mat imgSVM::img2feat(vector<Mat> imgVec) {
     
     featMatWhole.push_back(featMat);
   }
-  cout << "feature sample size:\t" << featMatWhole.size() << endl;
+  // cout << "generated feature size:\t" << featMatWhole.size() << endl;
   return featMatWhole;
 }
 

@@ -17,21 +17,23 @@ Mat TrackingObj::getAppearance() {
 
 void TrackingObj::incAge() {
   age++;
-  cout << "ID " << ID << " age increased." << endl; 
+  // cout << "ID " << ID << " age increased." << endl; 
 }
 
 void TrackingObj::showInfo() {
-  cout << "||----------------------------" << endl;
+  cout << "||------------------------------------" << endl;
   cout << "Tracker information" << endl;
   cout << "ID\t" << ID << endl;
   cout << "age\t" << age << endl;
   cout << "pos\t(" << pos.first << "," << pos.second << ")" << endl;
   cout << "vel\t(" << vel.first << "," << vel.second << ")" << endl;
   cout << "size\t" << size << endl;
-  // imshow("object appearance", appearance);
+  imshow("object appearance", appearance);
+  // pauseFrame(0);
   showState();
-  cout << "----------------------------||" << endl;
-  pauseFrame(0);
+  if (trackerSVM)
+    trackerSVM->showInfo();
+  cout << "------------------------------------||" << endl;
 }
 
 void TrackingObj::attr2State() {
@@ -196,28 +198,42 @@ vector<Mat> TrackingObj::sampleBgImg(Mat bgImg) {
 
 void TrackingObj::initSVM(Mat bgImg) {
   trackerSVM = new imgSVM();
-  trackerSVM->showInfo();
- 
+
+  /* Prepare positive features */ 
   vector<Mat> posImgVec;
   posImgVec.push_back(appearance);
-
-  vector<Mat> negImgVec = sampleBgImg(bgImg);
-
-/*
-  for (auto it = negImgVec.begin(); it != negImgVec.end(); it++) {
-    imshow("", *it);
-    waitKey(0); 
-  }
-*/
-
-  Mat negFeat = trackerSVM->img2feat(negImgVec);
   Mat posFeat = trackerSVM->img2feat(posImgVec);
+  // imshow("", appearance);
+  // waitKey(0);
+
+  /* Preapare negative features */
+  vector<Mat> negImgVec = sampleBgImg(bgImg);
+  // for (auto it = negImgVec.begin(); it != negImgVec.end(); it++) {
+  //   imshow("", *it);
+  //   waitKey(0); 
+  // }
+  Mat negFeat = trackerSVM->img2feat(negImgVec);
 
   trackerSVM->fillData(posFeat, negFeat);
 
   trackerSVM->SVMConfig();
 
   trackerSVM->SVMTrain();
+
+  /*
+  cout << "pos Prob:\t" << trackerSVM->SVMPredict(posFeat) << endl;
+  for (int it = 0; it < negFeat.rows; it++) {
+    cout << "neg Prob:\t" << trackerSVM->SVMPredict( negFeat.row(it) ) << endl;
+  }
+  */
+  
+  /*
+  Mat res;
+  trackerSVM->SVMPredict(posFeat, res);
+  cout << res << endl;
+  trackerSVM->SVMPredict(negFeat, res);
+  cout << res << endl;
+  */
 }
 
 float TrackingObj::testSVM(Mat inAppearance) {
@@ -227,9 +243,12 @@ float TrackingObj::testSVM(Mat inAppearance) {
   Mat inFeat = trackerSVM->img2feat(imgVec);
  
   float res = trackerSVM->SVMPredict(inFeat);
-  imshow("img1", inAppearance);
-  imshow("img2", appearance);
-  cout << "result:\t" << res << endl;
+  Mat cmbedImg = combImgs(inAppearance, appearance);
+  imshow("", cmbedImg);
+  // imshow("img1", inAppearance);
+  // imshow("img2", appearance);
+  // pauseFrame(0);
+ 
   return res;
 }
 

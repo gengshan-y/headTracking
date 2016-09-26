@@ -41,6 +41,9 @@ class imgSVM {
   /* Predicing label */
   float SVMPredict(Mat sampleMat);
 
+  /* Predicing label */
+  void SVMPredict(Mat sampleMat, Mat& res);
+
   /* Push training data */
   void fillData(Mat trainPos, Mat trainNeg);
 
